@@ -23,7 +23,7 @@ class Tensor:
 class InputLayer:
 
     @staticmethod
-    def input(img_name):
+    def forward(img_name):
         img = Image.open("src/" + img_name)
         arr = np.array(img)
         return Tensor(Shape(arr.size), arr)
@@ -55,6 +55,5 @@ class Softmax:
 
     @staticmethod
     def forward(inputs):
-        inputs = [np.exp(i) for i in inputs]
-        sum_of_exp = sum(inputs)
-        return np.array([j/sum_of_exp for j in inputs])
+        exp = np.exp(inputs)
+        return exp/np.sum(exp)
