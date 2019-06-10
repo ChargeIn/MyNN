@@ -23,10 +23,9 @@ class Tensor:
 class InputLayer:
 
     @staticmethod
-    def forward(img_name):
-        img = Image.open("src/" + img_name)
-        arr = np.array(img)
-        return Tensor(Shape(arr.size), arr)
+    def forward(img):
+        img = img.reshape((-1, 1))
+        return Tensor(Shape(img.shape), img)
 
 
 # Representation of Layers
@@ -34,14 +33,16 @@ class InputLayer:
 class FullyConnected:
 
     def __init__(self, shape_out, bias):
-        self.weights = np.array(shape_out, float)
+        self.weights = np.random.rand(1, shape_out)
         self.bias = bias
 
     def get_weights(self):
         return self.weights
 
     def forward(self, inputs):
-        out = np.matmul(inputs, self.weights) + self.bias
+        print(inputs.elements.shape)
+        print(self.weights.shape)
+        out = np.matmul(inputs.elements, self.weights) + self.bias
 
 
 class ReLuLayer:
