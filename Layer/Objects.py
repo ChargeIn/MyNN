@@ -25,36 +25,53 @@ class InputLayer:
     @staticmethod
     def forward(img):
         img = img.reshape((-1, 1))
-        return Tensor(Shape(img.shape), img)
+        return img
 
 
 # Representation of Layers
 
 class FullyConnected:
 
-    def __init__(self, shape_out, bias):
-        self.weights = np.random.rand(1, shape_out)
+    def __init__(self, shape_in, shape_out, bias):
+        self.inputs = np.zeros(shape_in)
+        self.weights = np.random.rand(shape_out, shape_in[0])
         self.bias = bias
 
     def get_weights(self):
         return self.weights
 
     def forward(self, inputs):
-        print(inputs.elements.shape)
-        print(self.weights.shape)
-        out = np.matmul(inputs.elements, self.weights) + self.bias
+        self.inputs = inputs
+        return np.matmul(self.weights, inputs) + self.bias
+
+    def backward(self, lastlayer):
+        self.deltas = lastlayer
+        return np.matmul(lastlayer, np.transpose(self.weights))
 
 
 class ReLuLayer:
 
-    @staticmethod
-    def forward(inputs):
+    def __init__(self, shape):
+        self.inputs = np.zeros(shape)
+
+    def forward(self, inputs):
+        self.inputs = inputs
         return np.maximum(inputs, 0)
+
+    def backward(self, lastlayer):
+        return np.matmul(np.diag(np.where(self.inputs > 0, 1, 0)), lastlayer)
 
 
 class Softmax:
 
-    @staticmethod
-    def forward(inputs):
+    def __init__(self, shape):
+        self.inputs = np.zeros(shape)
+
+    def forward(self, inputs):
+        self.inputs = inputs
         exp = np.exp(inputs)
         return exp/np.sum(exp)
+
+    def backward(self, lastlayer):
+        return np.matmul(lastlayer, np.diagflat(self.inputs) - np.matmul(self.inputs, np.transpose(self.inputs)))
+
