@@ -29,19 +29,19 @@ if __name__ == '__main__':
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train, x_test = x_train / 255.0, x_test / 255.0
 
-    inputLayer = InputLayer()
-    fully = FullyConnected([1, 784], 10, 1)
+    inputLayer = InputLayer([2, 28, 28])
+    fully = FullyConnected([1, 1352], 10, 1)
     filter1 = np.array([[[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]]])
     filter2 = np.array([[[1, 0, -1], [0, 0, 0], [-1, 0, 1]]])
     filters = np.array([filter1, filter2])
-    convLayer = Conv2DLayer(filters, 2)
+    convLayer = Conv2DLayer(filters, 1)
     reLu = ReLuLayer([10, 1])
     soft = Softmax([10, 1])
 
     # starting parameter
     batchsize = 50
     learning_rate = 0.1
-    layers = [fully, reLu, soft]
+    layers = [convLayer, inputLayer, fully, reLu, soft]
     epoche = 1
     output = 0
     loss = 0
@@ -50,10 +50,9 @@ if __name__ == '__main__':
         for i in range(0, y_train.size, batchsize):
             loss = 0
             for j in range(0, batchsize):
-                x1 = x_train[i + j]
+                inputs = x_train[i + j]
                 x2 = intToVector(y_train[i + j], 10)
-                x1 = convLayer.forward(x1)
-                inputs = inputLayer.forward(x1)
+
                 for l in layers:
                     inputs = l.forward(inputs)
 

@@ -34,29 +34,52 @@ class Tensor:
 # Converts pictures to tensors
 class InputLayer:
 
-    @staticmethod
-    def forward(img):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, img):
+        self.shape = img.shape
         img = img.reshape((1, -1))
         return img
+
+    def backprop(self, lastlayer):
+        return lastlayer.reshape(self.shape)
+
+    def update(self, rate, batchsize):
+        return
 
 
 # Representation of Layers
 class Conv2DLayer:
 
-    def __init__(self, filters, count):
-        self.filters = filters
-        self.count = count
+    def __init__(self, filters, bias):
+        self.filters = Tensor(filters)
+        self.bias = Tensor(bias)
+        self.inputs = {}
 
     def forward(self, inputs):
-        out = np.zeros([int(inputs.shape[0] - np.floor(self.filters.shape[1]/2) + 1), int(inputs.shape[1]
-                        - np.floor(self.filters.shape[2]/2) + 1, self.count)])
-        for i in range(0, self.count):
-            for j in range(0, self.filters.shape[3]):
-                out[i, :, :] += sc.convolve2d(inputs, self.filters[i, j, :, :])
+        self.inputs["in"] = inputs
+        d1 = inputs.shape[0] - self.filters.shape[2] + 1
+        d2 = inputs.shape[1] - self.filters.shape[3] + 1
+        out = np.zeros([self.filters.shape[0], d1, d2])
+        for i in range(0, self.filters.shape[0]):
+            for j in range(0, self.filters.shape[1]):
+                out[i, :, :] += sc.convolve2d(inputs, self.filters[i, j, :, :], mode="valid")
+
+        return out + self.bias
+
+    def backprop(self, lastlayer):
+        print(lastlayer.shape)
+        newfilter = np.transpose(self.filters, [1, 0, 2, 3])
+        out = np.zeros(self.inputs["in"].shape)
+        for i in range(0, newfilter.shape[0]):
+            for j in range(0, newfilter.shape[1]):
+                newfilter[i, j, :, :] = np.rot90(newfilter[i, j, :, :], 2)
+                out += sc.convolve2d(lastlayer[i], newfilter[i, j, :, :])
 
         return out
 
-    #def backprop(self, lastlayer):
+    def update(self, rate, batchsize):
 
 
 
