@@ -16,8 +16,7 @@ def crossEntropy(output, original):
     log = - np.log(output)
     return np.multiply(log, original)
 
-
-def intToVector(i, shape):
+def intToVector(i,shape):
     vector = np.zeros([1, shape])
     vector[0, i] = 1
     return vector
@@ -29,37 +28,36 @@ if __name__ == '__main__':
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train, x_test = x_train / 255.0, x_test / 255.0
 
-    input_layer = InputLayer()
-    reshapeLayer = ReshapeLayer([2, 28, 28])
-    fully = FullyConnected([1, 1352], 10, 1)
-    filter1 = np.array([[[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]]])
-    filter2 = np.array([[[1, 0, -1], [0, 0, 0], [-1, 0, 1]]])
-    filters = np.array([filter1, filter2])
-    bias = np.array([[[1]], [[1]]])
-    convLayer = Conv2DLayer(filters, bias)
+    input = InputLayer()
+    reshape = reshapeLyer()
+    fully = FullyConnected([1, 784], 10, 1)
+    fully2 = FullyConnected([1, 10], 10, 1)
     reLu = ReLuLayer([10, 1])
     soft = Softmax([10, 1])
 
     # starting parameter
     batchsize = 50
     learning_rate = 0.1
-    layers = [input_layer, convLayer, reshapeLayer, fully, reLu, soft]
+    layers = [input, reshape,fully, reLu, soft]
     epoche = 1
+    output = 0
     loss = 0
-    old_loss = 999
     while True:
         for i in range(0, y_train.size, batchsize):
             loss = 0
             for j in range(0, batchsize):
-                inputs = x_train[i + j]
-                x2 = intToVector(y_train[i + j], 10)
+                input = x_train[i+j]
+                x2 = intToVector(y_train[i+j], 10)
 
                 for l in layers:
-                    inputs = l.forward(inputs)
+                    input = l.forward(input)
 
-                output = meanSquareDerivation(inputs, x2)
+                output = meanSquareDerivation(input, x2)
                 for l in layers[::-1]:
-                    output = l.backprop
+                    output = l.backprop(output)
+                    if(i+j == 10):
+                        loss = 0
+                        #print(output)
 
             for l in layers:
                 l.update(learning_rate, batchsize)
@@ -67,14 +65,11 @@ if __name__ == '__main__':
             print("\rEpoche: " + str(epoche) + " Training: " + str(i) + " / " + str(y_train.size), end="")
 
         print(" \rEpoche: " + str(epoche) + " Training: " + str(y_train.size) + " / " + str(y_train.size))
-
         for i in range(0, y_test.size, batchsize):
-            inputs = x_test[i]
+            input = x_test[i]
             x2 = intToVector(y_test[i], 10)
             for l in layers:
-                inputs = l.forward(inputs)
-            loss += meanSquare(inputs, x2)
-
-        old_loss = loss
-        print("Epoche: " + str(epoche) + " Loss:" + str(loss / batchsize))
+                input = l.forward(input)
+            loss += meanSquare(input, x2)
+        print("Epoche: " + str(epoche) + " Loss:" + str(loss/batchsize))
         epoche += 1
