@@ -29,6 +29,9 @@ class Tensor:
 # Converts pictures to tensors
 class InputLayer:
 
+    def __str__(self):
+        return "InputLayer"
+
     @staticmethod
     def forward(img):
         return np.array([img])
@@ -43,10 +46,13 @@ class InputLayer:
 
 
 # converts the elements between convLayer and fullyconnected
-class ReshapeLyer:
+class ReshapeLayer:
 
     def __init__(self):
         self.shape = {}
+
+    def __str__(self):
+        return "ReshapeLayer"
 
     def forward(self, inputs):
         self.shape["s"] = inputs.shape
@@ -66,8 +72,11 @@ class FullyConnected:
 
     def __init__(self, shape_in, shape_out):
         self.inputs = Tensor(np.zeros(shape_in))
-        self.weights = Tensor(np.random.rand(shape_in[1], shape_out))
+        self.weights = Tensor(np.random.uniform(-1, 1, size=(shape_in[1], shape_out)))
         self.bias = Tensor(np.ones(shape_out))
+
+    def __str__(self):
+        return "FullyConnectedLayer"
 
     def get_weights(self):
         return self.weights
@@ -96,6 +105,9 @@ class Conv2DLayer:
         self.filters = Tensor(filters)
         self.bias = Tensor(bias)
         self.inputs = {}
+
+    def __str__(self):
+        return "ConvolutionLayer"
 
     def forward(self, inputs):
         self.inputs["in"] = inputs
@@ -137,6 +149,9 @@ class ReLuLayer:
     def __init__(self):
         self.inputs = {}
 
+    def __str__(self):
+        return "ReLuLayer"
+
     def forward(self, inputs):
         self.inputs["in"] = Tensor(inputs)
         return np.maximum(inputs, 0)
@@ -153,6 +168,9 @@ class Sigmoid:
     def __init__(self):
         self.inputs = {}
 
+    def __str__(self):
+        return "SigmoidLayer"
+
     def forward(self, inputs):
         self.inputs["in"] = sp.expit(inputs)
         return self.inputs["in"]
@@ -168,6 +186,9 @@ class Softmax:
 
     def __init__(self):
         self.inputs = {}
+
+    def __str__(self):
+        return "SoftmaxLayer"
 
     def forward(self, inputs):
         exp = np.exp(inputs - np.max(inputs, axis=1))
