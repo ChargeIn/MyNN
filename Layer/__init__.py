@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     #layers = [inputs, reshape, fully, sigmoid, fully2, soft]
     layers = [inputs, convLayer, reshape, fully, soft]
-    #minst(layers)
+    minst(layers)
 
     # conv2d_test
     inputTest = InputLayer()

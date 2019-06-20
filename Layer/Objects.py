@@ -106,14 +106,14 @@ class Conv2DLayer:
             for j in range(0, self.filters.elements.shape[1]):
                 out[i, :, :] += sc.convolve2d(inputs[j, :, :], self.filters.elements[i, j, :, :], mode="valid") \
                                 + self.bias.elements[i, j, :]
-        return np.array([out])
+        return out
 
     def backprop(self, lastlayer):
-        newfilter = np.transpose(self.filters.elements, [1, 0, 2, 3])
-        out = np.zeros(self.inputs["in"].shape)
-        for i in range(0, newfilter.shape[0]):
-            for j in range(0, newfilter.shape[1]):
-                out[j, :, :] += sc.convolve2d(lastlayer[i, :, :], np.rot90(newfilter[i, j, :, :], 2), mode="full")
+        shape = self.inputs["in"].shape
+        out = np.zeros(shape)
+        for i in range(0, shape[0]):
+            for j in range(0, self.filters.elements.shape[1]):
+                out[i, :, :] += sc.convolve2d(lastlayer[j, :, :], np.rot90(self.filters.elements[i, j, :, :], 2), mode="full")
 
         # generating updates for deltas
         filter_update = np.zeros(self.filters.elements.shape)
