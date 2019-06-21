@@ -21,7 +21,7 @@ class Tensor:
         self.deltas["deltas"] = self.get_deltas() + update
 
     def update(self, rate, batchsize):
-        self.elements = self.elements - rate * self.get_deltas() / batchsize
+        self.elements = self.elements - (rate/batchsize) * self.get_deltas()
         self.deltas = {}
 
 
@@ -103,7 +103,7 @@ class Conv2DLayer:
             for j in range(0, filters.shape[1]):
                 filters[i, j, :, :] = np.rot90(filters[i, j, :, :], 2)
         self.filters = Tensor(filters)
-        self.bias = Tensor(np.random.uniform(-1, 1, size=(shape[0], shape[1], 1)))
+        self.bias = Tensor(np.zeros([shape[0], shape[1], 1]))
         self.inputs = {}
 
     def __str__(self):
