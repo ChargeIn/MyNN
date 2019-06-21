@@ -3,7 +3,6 @@
 import numpy as np
 import scipy.signal as sc
 import scipy.special as sp
-import scipy.ndimage as con
 
 
 # Representation of the data
@@ -98,12 +97,13 @@ class FullyConnected:
 # Representation of Layers
 class Conv2DLayer:
 
-    def __init__(self, filters, bias):
+    def __init__(self, shape):
+        filters = np.random.uniform(-1, 1, size=shape)
         for i in range(0, filters.shape[0]):
             for j in range(0, filters.shape[1]):
                 filters[i, j, :, :] = np.rot90(filters[i, j, :, :], 2)
         self.filters = Tensor(filters)
-        self.bias = Tensor(bias)
+        self.bias = Tensor(np.random.uniform(-1, 1, size=(shape[0], shape[1], 1)))
         self.inputs = {}
 
     def __str__(self):
@@ -141,7 +141,7 @@ class Conv2DLayer:
 
     def update(self, rate, batchsize):
         self.filters.update(rate, batchsize)
-        self.bias.update(rate, batchsize)
+        #self.bias.update(rate, batchsize)
 
 
 class ReLuLayer:
